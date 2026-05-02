@@ -101,7 +101,7 @@ You can derive a `Diagnostic` from any `std::error::Error` type.
 
 `thiserror` is a great way to define them, and plays nicely with `miette`!
 */
-use miette::{Diagnostic, NamedSource, SourceSpan};
+use miden_miette::{Diagnostic, NamedSource, SourceSpan};
 use thiserror::Error;
 
 #[derive(Error, Debug, Diagnostic)]
@@ -128,7 +128,7 @@ Use this `Result` type (or its expanded version) as the return type
 throughout your app (but NOT your libraries! Those should always return
 concrete types!).
 */
-use miette::Result;
+use miden_miette::Result;
 fn this_fails() -> Result<()> {
     // You can use plain strings as a `Source`, or anything that implements
     // the one-method `Source` trait.
@@ -194,7 +194,7 @@ the trait directly, just like with `std::error::Error`.
 
 ```rust
 // lib/error.rs
-use miette::{Diagnostic, SourceSpan};
+use miden_miette::{Diagnostic, SourceSpan};
 use thiserror::Error;
 
 #[derive(Error, Diagnostic, Debug)]
@@ -252,7 +252,7 @@ When dealing with non-`Diagnostic` types, you'll want to
 
 ```rust
 // my_app/lib/my_internal_file.rs
-use miette::{IntoDiagnostic, Result};
+use miden_miette::{IntoDiagnostic, Result};
 use semver::Version;
 
 pub fn some_tool() -> Result<Version> {
@@ -267,7 +267,7 @@ it:
 
 ```rust
 // my_app/lib/my_internal_file.rs
-use miette::{IntoDiagnostic, Result, WrapErr};
+use miden_miette::{IntoDiagnostic, Result, WrapErr};
 use semver::Version;
 
 pub fn some_tool() -> Result<Version> {
@@ -281,7 +281,7 @@ pub fn some_tool() -> Result<Version> {
 To construct your own simple adhoc error use the [`miette!`] macro:
 ```rust
 // my_app/lib/my_internal_file.rs
-use miette::{miette, Result};
+use miden_miette::{miette, Result};
 use semver::Version;
 
 pub fn some_tool() -> Result<Version> {
@@ -305,7 +305,7 @@ automatically.
 > libraries and such might not want.
 
 ```rust
-use miette::{IntoDiagnostic, Result};
+use miden_miette::{IntoDiagnostic, Result};
 use semver::Version;
 
 fn pretend_this_is_main() -> Result<()> {
@@ -328,7 +328,7 @@ This is, in fact, what returning diagnostics from main ends up doing.
 To do it yourself, you can write the following:
 
 ```rust
-use miette::{IntoDiagnostic, Result};
+use miden_miette::{IntoDiagnostic, Result};
 use semver::Version;
 
 fn just_a_random_function() {
@@ -360,7 +360,7 @@ To use this, you can add a `url()` sub-param to your `#[diagnostic]`
 attribute:
 
 ```rust
-use miette::Diagnostic;
+use miden_miette::Diagnostic;
 use thiserror::Error;
 
 #[derive(Error, Diagnostic, Debug)]
@@ -380,7 +380,7 @@ link to this diagnostic on `docs.rs`, so folks can just go straight to your
 (very high quality and detailed!) documentation on this diagnostic:
 
 ```rust
-use miette::Diagnostic;
+use miden_miette::Diagnostic;
 use thiserror::Error;
 
 #[derive(Error, Diagnostic, Debug)]
@@ -410,7 +410,7 @@ The easiest way to define errors like this is to use the
 `derive(Diagnostic)` macro:
 
 ```rust
-use miette::{Diagnostic, SourceSpan};
+use miden_miette::{Diagnostic, SourceSpan};
 use thiserror::Error;
 
 #[derive(Diagnostic, Debug, Error)]
@@ -448,7 +448,7 @@ The first is the `#[help()]` format attribute that applies to structs or
 enum variants:
 
 ```rust
-use miette::Diagnostic;
+use miden_miette::Diagnostic;
 use thiserror::Error;
 
 #[derive(Debug, Diagnostic, Error)]
@@ -461,7 +461,7 @@ The other is by programmatically supplying the help text as a field to
 your diagnostic:
 
 ```rust
-use miette::Diagnostic;
+use miden_miette::Diagnostic;
 use thiserror::Error;
 
 #[derive(Debug, Diagnostic, Error)]
@@ -481,7 +481,7 @@ let err = Foo {
 `miette` provides a way to set the severity level of a diagnostic.
 
 ```rust
-use miette::Diagnostic;
+use miden_miette::Diagnostic;
 use thiserror::Error;
 
 #[derive(Debug, Diagnostic, Error)]
@@ -499,7 +499,7 @@ To do so, use the `#[related]` tag on any `IntoIter` field in your
 `Diagnostic` type:
 
 ```rust
-use miette::Diagnostic;
+use miden_miette::Diagnostic;
 use thiserror::Error;
 
 #[derive(Debug, Error, Diagnostic)]
@@ -517,7 +517,7 @@ One option is to use [`with_source_code()`](Report::with_source_code)
 method for that:
 
 ```rust
-use miette::{Diagnostic, SourceSpan};
+use miden_miette::{Diagnostic, SourceSpan};
 use thiserror::Error;
 
 #[derive(Diagnostic, Debug, Error)]
@@ -549,7 +549,7 @@ useful in combination with `related`, when multiple errors should be
 emitted at the same time:
 
 ```rust
-use miette::{Diagnostic, Report, SourceSpan};
+use miden_miette::{Diagnostic, Report, SourceSpan};
 use thiserror::Error;
 
 #[derive(Diagnostic, Debug, Error)]
@@ -610,7 +610,7 @@ you can use `#[diagnostic_source]` alongside `#[source]`. Not that you
 will likely want to use _both_:
 
 ```rust
-use miette::Diagnostic;
+use miden_miette::Diagnostic;
 use thiserror::Error;
 
 #[derive(Debug, Diagnostic, Error)]

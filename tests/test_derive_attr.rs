@@ -1,3 +1,5 @@
+extern crate miden_miette as miette;
+
 // Testing of the `diagnostic` attr used by derive(Diagnostic)
 use miette::{Diagnostic, LabeledSpan, NamedSource, SourceSpan};
 use thiserror::Error;

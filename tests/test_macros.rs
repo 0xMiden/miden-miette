@@ -1,4 +1,7 @@
 #![allow(clippy::eq_op)]
+
+extern crate miden_miette as miette;
+
 mod common;
 
 use self::common::*;

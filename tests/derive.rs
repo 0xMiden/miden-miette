@@ -1,3 +1,5 @@
+extern crate miden_miette as miette;
+
 use miette::{Diagnostic, Report, Severity, SourceSpan};
 use thiserror::Error;
 
@@ -383,7 +385,7 @@ fn url_docsrs() {
 
     assert_eq!(
         format!(
-            "https://docs.rs/miette/{}/miette/struct.Foo.html",
+            "https://docs.rs/miden-miette/{}/miden_miette/struct.Foo.html",
             env!("CARGO_PKG_VERSION")
         ),
         Foo {}.url().unwrap().to_string()

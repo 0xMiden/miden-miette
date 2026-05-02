@@ -5,7 +5,7 @@
 /// # Example
 ///
 /// ```
-/// # use miette::{bail, Result};
+/// # use miden_miette::{bail, Result};
 /// #
 /// # fn has_permission(user: usize, resource: usize) -> bool {
 /// #     true
@@ -30,7 +30,7 @@
 /// ```
 ///
 /// ```
-/// # use miette::{bail, Result};
+/// # use miden_miette::{bail, Result};
 /// # use thiserror::Error;
 /// #
 /// # const MAX_DEPTH: usize = 1;
@@ -57,7 +57,7 @@
 /// ```
 ///
 /// ```
-/// use miette::{bail, Result, Severity};
+/// use miden_miette::{bail, Result, Severity};
 ///
 /// fn divide(x: f64, y: f64) -> Result<f64> {
 ///     if y.abs() < 1e-3 {
@@ -99,7 +99,7 @@ macro_rules! bail {
 /// # Example
 ///
 /// ```
-/// # use miette::{ensure, Result};
+/// # use miden_miette::{ensure, Result};
 /// #
 /// # fn main() -> Result<()> {
 /// #     let user = 0;
@@ -110,7 +110,7 @@ macro_rules! bail {
 /// ```
 ///
 /// ```
-/// # use miette::{ensure, Result};
+/// # use miden_miette::{ensure, Result};
 /// # use thiserror::Error;
 /// #
 /// # const MAX_DEPTH: usize = 1;
@@ -134,7 +134,7 @@ macro_rules! bail {
 /// ```
 ///
 /// ```
-/// use miette::{ensure, Result, Severity};
+/// use miden_miette::{ensure, Result, Severity};
 ///
 /// fn divide(x: f64, y: f64) -> Result<f64> {
 ///     ensure!(
@@ -174,7 +174,7 @@ macro_rules! ensure {
 ///
 /// With string literal and interpolation:
 /// ```
-/// # use miette::miette;
+/// # use miden_miette::miette;
 /// let x = 1;
 /// let y = 2;
 #[cfg_attr(
@@ -202,7 +202,7 @@ macro_rules! ensure {
 ///
 /// With [`diagnostic!`]-like arguments:
 /// ```
-/// use miette::{miette, LabeledSpan, Severity};
+/// use miden_miette::{miette, LabeledSpan, Severity};
 ///
 /// let source = "(2 + 2".to_string();
 /// let report = miette!(
@@ -243,7 +243,7 @@ macro_rules! miette {
 ///
 /// # Examples
 /// ```
-/// use miette::{diagnostic, LabeledSpan, Severity};
+/// use miden_miette::{diagnostic, LabeledSpan, Severity};
 ///
 /// let source = "(2 + 2".to_string();
 /// let diag = diagnostic!(
@@ -260,7 +260,7 @@ macro_rules! miette {
 /// ```
 /// Diagnostic without any fields:
 /// ```
-/// # use miette::diagnostic;
+/// # use miden_miette::diagnostic;
 /// let x = 1;
 /// let y = 2;
 ///

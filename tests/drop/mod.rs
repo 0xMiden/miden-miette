@@ -1,3 +1,5 @@
+extern crate miden_miette as miette;
+
 use std::error::Error as StdError;
 use std::fmt::{self, Display};
 use std::sync::atomic::AtomicBool;

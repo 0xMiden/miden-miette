@@ -1,3 +1,5 @@
+extern crate miden_miette as miette;
+
 mod drop;
 
 use crate::drop::{DetectDrop, Flag};

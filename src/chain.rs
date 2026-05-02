@@ -3,8 +3,11 @@ Iterate over error `.source()` chains.
 
 NOTE: This module is taken wholesale from <https://crates.io/crates/eyre>.
 */
+use alloc::{vec, vec::Vec};
+#[cfg(not(feature = "std"))]
+use core::error::Error as StdError;
+#[cfg(feature = "std")]
 use std::error::Error as StdError;
-use std::vec;
 
 use ChainState::*;
 
@@ -15,7 +18,7 @@ use ChainState::*;
 /// # Example
 ///
 /// ```
-/// use miette::Report;
+/// use miden_miette::Report;
 /// use std::io;
 ///
 /// pub fn underlying_io_error_kind(error: &Report) -> Option<io::ErrorKind> {

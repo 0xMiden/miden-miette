@@ -2,6 +2,12 @@
 Iterate over error `.diagnostic_source()` chains.
 */
 
+#[cfg(not(feature = "std"))]
+use core::error::Error as StdError;
+use core::fmt;
+#[cfg(feature = "std")]
+use std::error::Error as StdError;
+
 use crate::protocol::Diagnostic;
 
 /// Iterator of a chain of cause errors.
@@ -18,7 +24,7 @@ impl<'a> DiagnosticChain<'a> {
         }
     }
 
-    pub(crate) fn from_stderror(head: &'a (dyn std::error::Error + 'static)) -> Self {
+    pub(crate) fn from_stderror(head: &'a (dyn StdError + 'static)) -> Self {
         DiagnosticChain {
             state: Some(ErrorKind::StdError(head)),
         }
@@ -59,7 +65,7 @@ impl ExactSizeIterator for DiagnosticChain<'_> {
 #[derive(Clone)]
 pub(crate) enum ErrorKind<'a> {
     Diagnostic(&'a dyn Diagnostic),
-    StdError(&'a (dyn std::error::Error + 'static)),
+    StdError(&'a (dyn StdError + 'static)),
 }
 
 impl<'a> ErrorKind<'a> {
@@ -68,14 +74,14 @@ impl<'a> ErrorKind<'a> {
             ErrorKind::Diagnostic(d) => d
                 .diagnostic_source()
                 .map(ErrorKind::Diagnostic)
-                .or_else(|| d.source().map(ErrorKind::StdError)),
-            ErrorKind::StdError(e) => e.source().map(ErrorKind::StdError),
+                .or_else(|| (*d).source().map(ErrorKind::StdError)),
+            ErrorKind::StdError(e) => (*e).source().map(ErrorKind::StdError),
         }
     }
 }
 
-impl std::fmt::Debug for ErrorKind<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Debug for ErrorKind<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ErrorKind::Diagnostic(d) => d.fmt(f),
             ErrorKind::StdError(e) => e.fmt(f),
@@ -83,8 +89,8 @@ impl std::fmt::Debug for ErrorKind<'_> {
     }
 }
 
-impl std::fmt::Display for ErrorKind<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for ErrorKind<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ErrorKind::Diagnostic(d) => d.fmt(f),
             ErrorKind::StdError(e) => e.fmt(f),

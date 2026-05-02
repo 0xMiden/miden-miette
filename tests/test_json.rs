@@ -1,3 +1,5 @@
+extern crate miden_miette as miette;
+
 mod json_report_handler {
     use miette::{Diagnostic, MietteError, NamedSource, Report, SourceSpan};
 

@@ -1,3 +1,5 @@
+extern crate miden_miette as miette;
+
 #[test]
 fn test_handler() {
     use miette::{miette, Report};

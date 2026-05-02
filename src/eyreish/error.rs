@@ -1,15 +1,15 @@
+use alloc::boxed::Box;
 use core::any::TypeId;
 use core::fmt::{self, Debug, Display};
 use core::mem::ManuallyDrop;
 use core::ptr::{self, NonNull};
-use std::error::Error as StdError;
 
 use super::ptr::{Mut, Own, Ref};
 use super::Report;
 use super::ReportHandler;
 use crate::chain::Chain;
 use crate::eyreish::wrapper::WithSourceCode;
-use crate::{Diagnostic, SourceCode};
+use crate::{Diagnostic, SourceCode, StdError};
 use core::ops::{Deref, DerefMut};
 
 impl Report {
@@ -53,7 +53,7 @@ impl Report {
     /// # use ffi::{Input, Output};
     /// #
     /// use futures::stream::{Stream, StreamExt, TryStreamExt};
-    /// use miette::{Report, Result};
+    /// use miden_miette::{Report, Result};
     ///
     /// async fn demo<S>(stream: S) -> Result<Vec<Output>>
     /// where
@@ -257,7 +257,7 @@ impl Report {
     /// # Example
     ///
     /// ```
-    /// use miette::Report;
+    /// use miden_miette::Report;
     /// use std::io;
     ///
     /// pub fn underlying_io_error_kind(error: &Report) -> Option<io::ErrorKind> {
@@ -332,7 +332,7 @@ impl Report {
     /// # Example
     ///
     /// ```
-    /// # use miette::{Report, miette};
+    /// # use miden_miette::{Report, miette};
     /// # use std::fmt::{self, Display};
     /// # use std::task::Poll;
     /// #
@@ -429,7 +429,7 @@ impl Report {
     /// Construct a [`Report`] directly from an error-like type
     pub fn from_err<E>(err: E) -> Self
     where
-        E: std::error::Error + Send + Sync + 'static,
+        E: StdError + Send + Sync + 'static,
     {
         super::DiagnosticError(Box::new(err)).into()
     }
@@ -816,7 +816,7 @@ impl AsRef<dyn StdError> for Report {
     }
 }
 
-impl std::borrow::Borrow<dyn Diagnostic> for Report {
+impl core::borrow::Borrow<dyn Diagnostic> for Report {
     fn borrow(&self) -> &(dyn Diagnostic + 'static) {
         self.as_ref()
     }

@@ -2,7 +2,8 @@
 Default trait implementations for [`Diagnostic`].
 */
 
-use std::{convert::Infallible, fmt::Display};
+use alloc::boxed::Box;
+use core::{convert::Infallible, fmt::Display};
 
 use crate::{Diagnostic, LabeledSpan, Severity, SourceCode};
 

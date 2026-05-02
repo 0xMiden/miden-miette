@@ -1,6 +1,7 @@
-use std::{
+use alloc::{boxed::Box, string::String, vec::Vec};
+use core::{
     error::Error,
-    fmt::{Debug, Display},
+    fmt::{self, Debug, Display},
 };
 
 #[cfg(feature = "serde")]
@@ -39,7 +40,7 @@ pub struct MietteDiagnostic {
 }
 
 impl Display for MietteDiagnostic {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", &self.message)
     }
 }
@@ -86,7 +87,7 @@ impl MietteDiagnostic {
     ///
     /// # Examples
     /// ```
-    /// use miette::{Diagnostic, MietteDiagnostic, Severity};
+    /// use miden_miette::{Diagnostic, MietteDiagnostic, Severity};
     ///
     /// let diag = MietteDiagnostic::new("Oops, something went wrong!");
     /// assert_eq!(diag.to_string(), "Oops, something went wrong!");
@@ -107,7 +108,7 @@ impl MietteDiagnostic {
     ///
     /// # Examples
     /// ```
-    /// use miette::{Diagnostic, MietteDiagnostic};
+    /// use miden_miette::{Diagnostic, MietteDiagnostic};
     ///
     /// let diag = MietteDiagnostic::new("Oops, something went wrong!").with_code("foo::bar::baz");
     /// assert_eq!(diag.message, "Oops, something went wrong!");
@@ -122,7 +123,7 @@ impl MietteDiagnostic {
     ///
     /// # Examples
     /// ```
-    /// use miette::{Diagnostic, MietteDiagnostic, Severity};
+    /// use miden_miette::{Diagnostic, MietteDiagnostic, Severity};
     ///
     /// let diag = MietteDiagnostic::new("I warn you to stop!").with_severity(Severity::Warning);
     /// assert_eq!(diag.message, "I warn you to stop!");
@@ -137,7 +138,7 @@ impl MietteDiagnostic {
     ///
     /// # Examples
     /// ```
-    /// use miette::{Diagnostic, MietteDiagnostic};
+    /// use miden_miette::{Diagnostic, MietteDiagnostic};
     ///
     /// let diag = MietteDiagnostic::new("PC is not working").with_help("Try to reboot it again");
     /// assert_eq!(diag.message, "PC is not working");
@@ -152,7 +153,7 @@ impl MietteDiagnostic {
     ///
     /// # Examples
     /// ```
-    /// use miette::{Diagnostic, MietteDiagnostic};
+    /// use miden_miette::{Diagnostic, MietteDiagnostic};
     ///
     /// let diag = MietteDiagnostic::new("PC is not working")
     ///     .with_url("https://letmegooglethat.com/?q=Why+my+pc+doesn%27t+work");
@@ -173,7 +174,7 @@ impl MietteDiagnostic {
     ///
     /// # Examples
     /// ```
-    /// use miette::{Diagnostic, LabeledSpan, MietteDiagnostic};
+    /// use miden_miette::{Diagnostic, LabeledSpan, MietteDiagnostic};
     ///
     /// let source = "cpp is the best language";
     ///
@@ -193,7 +194,7 @@ impl MietteDiagnostic {
     ///
     /// # Examples
     /// ```
-    /// use miette::{Diagnostic, LabeledSpan, MietteDiagnostic};
+    /// use miden_miette::{Diagnostic, LabeledSpan, MietteDiagnostic};
     ///
     /// let source = "helo wrld";
     ///
@@ -214,7 +215,7 @@ impl MietteDiagnostic {
     ///
     /// # Examples
     /// ```
-    /// use miette::{Diagnostic, LabeledSpan, MietteDiagnostic};
+    /// use miden_miette::{Diagnostic, LabeledSpan, MietteDiagnostic};
     ///
     /// let source = "helo wrld";
     ///
@@ -237,7 +238,7 @@ impl MietteDiagnostic {
     ///
     /// # Examples
     /// ```
-    /// use miette::{Diagnostic, LabeledSpan, MietteDiagnostic};
+    /// use miden_miette::{Diagnostic, LabeledSpan, MietteDiagnostic};
     ///
     /// let source = "helo wrld";
     ///

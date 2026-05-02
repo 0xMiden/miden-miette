@@ -6,8 +6,11 @@
 )]
 use core::fmt::Display;
 
-use std::error::Error as StdError;
-use std::sync::OnceLock;
+use alloc::boxed::Box;
+#[cfg(not(feature = "std"))]
+use core::panic::Location as StdLocation;
+#[cfg(feature = "std")]
+use std::panic::Location as StdLocation;
 
 #[allow(unreachable_pub)]
 pub use into_diagnostic::*;
@@ -29,6 +32,7 @@ use crate::DebugReportHandler;
 use crate::Diagnostic;
 #[cfg(feature = "fancy-base")]
 use crate::MietteHandler;
+use crate::StdError;
 
 use error::ErrorImpl;
 
@@ -61,7 +65,12 @@ unsafe impl Send for Report {}
 pub type ErrorHook =
     Box<dyn Fn(&(dyn Diagnostic + 'static)) -> Box<dyn ReportHandler> + Sync + Send + 'static>;
 
-static HOOK: OnceLock<ErrorHook> = OnceLock::new();
+#[cfg(feature = "std")]
+static HOOK: std::sync::OnceLock<ErrorHook> = std::sync::OnceLock::new();
+
+#[cfg(not(feature = "std"))]
+static HOOK: spin::Lazy<spin::Mutex<Option<ErrorHook>>> =
+    spin::Lazy::new(|| spin::Mutex::new(None));
 
 /// Error indicating that [`set_hook()`] was unable to install the provided
 /// [`ErrorHook`].
@@ -80,24 +89,73 @@ impl Diagnostic for InstallError {}
 /**
 Set the error hook.
 */
+#[cfg(feature = "std")]
 pub fn set_hook(hook: ErrorHook) -> Result<(), InstallError> {
     HOOK.set(hook).map_err(|_| InstallError)
 }
 
+/**
+Set the error hook.
+*/
+#[cfg(not(feature = "std"))]
+pub fn set_hook(hook: ErrorHook) -> Result<(), InstallError> {
+    let mut guard = HOOK.try_lock().ok_or(InstallError)?;
+    if guard.is_some() {
+        return Err(InstallError);
+    }
+    guard.replace(hook);
+    Ok(())
+}
+
 #[cfg_attr(track_caller, track_caller)]
 #[cfg_attr(not(track_caller), allow(unused_mut))]
+#[cfg(feature = "std")]
 fn capture_handler(error: &(dyn Diagnostic + 'static)) -> Box<dyn ReportHandler> {
     let hook = HOOK.get_or_init(|| Box::new(get_default_printer)).as_ref();
 
     #[cfg(track_caller)]
     {
         let mut handler = hook(error);
-        handler.track_caller(std::panic::Location::caller());
+        handler.track_caller(StdLocation::caller());
         handler
     }
     #[cfg(not(track_caller))]
     {
         hook(error)
+    }
+}
+
+#[cfg_attr(track_caller, track_caller)]
+#[cfg_attr(not(track_caller), allow(unused_mut))]
+#[cfg(not(feature = "std"))]
+fn capture_handler(error: &(dyn Diagnostic + 'static)) -> Box<dyn ReportHandler> {
+    let mut hook = HOOK.lock();
+    match hook.as_ref() {
+        Some(hook) => {
+            #[cfg(track_caller)]
+            {
+                let mut handler = hook(error);
+                handler.track_caller(StdLocation::caller());
+                handler
+            }
+            #[cfg(not(track_caller))]
+            {
+                hook(error)
+            }
+        }
+        None => {
+            let hook = hook.insert(Box::new(get_default_printer));
+            #[cfg(track_caller)]
+            {
+                let mut handler = hook(error);
+                handler.track_caller(StdLocation::caller());
+                handler
+            }
+            #[cfg(not(track_caller))]
+            {
+                hook(error)
+            }
+        }
     }
 }
 
@@ -149,6 +207,7 @@ pub trait ReportHandler: core::any::Any + Send + Sync {
     /// # Example
     ///
     /// ```rust
+    /// extern crate miden_miette as miette;
     /// use indenter::indented;
     /// use miette::{Diagnostic, ReportHandler};
     ///
@@ -193,7 +252,7 @@ pub trait ReportHandler: core::any::Any + Send + Sync {
 
     /// Store the location of the caller who constructed this error report
     #[allow(unused_variables)]
-    fn track_caller(&mut self, location: &'static std::panic::Location<'static>) {}
+    fn track_caller(&mut self, location: &'static StdLocation<'static>) {}
 }
 
 /// type alias for `Result<T, Report>`
@@ -205,11 +264,11 @@ pub trait ReportHandler: core::any::Any + Send + Sync {
 /// `miette::Result` may be used with one *or* two type parameters.
 ///
 /// ```rust
-/// use miette::Result;
+/// use miden_miette::Result;
 ///
 /// # const IGNORE: &str = stringify! {
 /// fn demo1() -> Result<T> {...}
-///            // ^ equivalent to std::result::Result<T, miette::Error>
+///            // ^ equivalent to std::result::Result<T, miden_miette::Error>
 ///
 /// fn demo2() -> Result<T, OtherError> {...}
 ///            // ^ equivalent to std::result::Result<T, OtherError>
@@ -235,7 +294,7 @@ pub trait ReportHandler: core::any::Any + Send + Sync {
 /// #
 /// # impl Deserialize for ClusterMap {}
 /// #
-/// use miette::{IntoDiagnostic, Result};
+/// use miden_miette::{IntoDiagnostic, Result};
 ///
 /// fn main() -> Result<()> {
 ///     # return Ok(());
@@ -260,7 +319,7 @@ pub type Result<T, E = Report> = core::result::Result<T, E>;
 /// # Example
 ///
 /// ```
-/// use miette::{WrapErr, IntoDiagnostic, Result};
+/// use miden_miette::{WrapErr, IntoDiagnostic, Result};
 /// use std::{fs, path::PathBuf};
 ///
 /// pub struct ImportantThing {
@@ -315,7 +374,7 @@ pub type Result<T, E = Report> = core::result::Result<T, E>;
 ///
 /// ```rust,compile_fail
 /// use std::error::Error;
-/// use miette::{WrapErr, Report};
+/// use miden_miette::{WrapErr, Report};
 ///
 /// fn wrap_example(err: Result<(), Box<dyn Error + Send + Sync + 'static>>)
 ///     -> Result<(), Report>
@@ -327,7 +386,7 @@ pub type Result<T, E = Report> = core::result::Result<T, E>;
 /// We encourage you to write this:
 ///
 /// ```rust
-/// use miette::{miette, Report, WrapErr};
+/// use miden_miette::{miette, Report, WrapErr};
 /// use std::error::Error;
 ///
 /// fn wrap_example(err: Result<(), Box<dyn Error + Send + Sync + 'static>>) -> Result<(), Report> {
@@ -354,7 +413,7 @@ pub type Result<T, E = Report> = core::result::Result<T, E>;
 ///     message, so you should freely wrap errors wherever it would be helpful.
 ///
 ///     ```
-///     # use miette::bail;
+///     # use miden_miette::bail;
 ///     # use thiserror::Error;
 ///     #
 ///     # #[derive(Error, Debug)]
@@ -365,7 +424,7 @@ pub type Result<T, E = Report> = core::result::Result<T, E>;
 ///     #     bail!(SuspiciousError);
 ///     # }
 ///     #
-///     use miette::{WrapErr, Result};
+///     use miden_miette::{WrapErr, Result};
 ///
 ///     fn do_it() -> Result<()> {
 ///         helper().wrap_err("Failed to complete the work")?;
@@ -394,7 +453,7 @@ pub type Result<T, E = Report> = core::result::Result<T, E>;
 ///     the application.
 ///
 ///     ```
-///     # use miette::bail;
+///     # use miden_miette::bail;
 ///     # use thiserror::Error;
 ///     #
 ///     # #[derive(Error, Debug)]
@@ -405,7 +464,7 @@ pub type Result<T, E = Report> = core::result::Result<T, E>;
 ///     #     bail!("no such file or directory");
 ///     # }
 ///     #
-///     use miette::{WrapErr, Result};
+///     use miden_miette::{WrapErr, Result};
 ///
 ///     fn do_it() -> Result<()> {
 ///         helper().wrap_err(HelperFailed)?;

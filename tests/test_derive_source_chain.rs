@@ -1,3 +1,5 @@
+extern crate miden_miette as miette;
+
 use std::sync::Arc;
 
 use miette::{miette, Diagnostic};

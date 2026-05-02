@@ -2,7 +2,9 @@
 //! so the decoding source will be annotated with the decoding error,
 //! providing contextual information about the error.
 
-use miette::{IntoDiagnostic, SourceOffset};
+extern crate miden_miette as miette;
+
+use miden_miette::{IntoDiagnostic, SourceOffset};
 use serde_json::{self, json};
 
 #[derive(Debug, serde::Deserialize)]

@@ -1,3 +1,9 @@
+use alloc::{
+    boxed::Box,
+    string::{String, ToString},
+};
+use core::fmt;
+
 use crate::{MietteError, MietteSpanContents, SourceCode, SpanContents};
 
 /// Utility struct for when you have a regular [`SourceCode`] type that doesn't
@@ -10,8 +16,8 @@ pub struct NamedSource<S: SourceCode + 'static> {
     language: Option<String>,
 }
 
-impl<S: SourceCode> std::fmt::Debug for NamedSource<S> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<S: SourceCode> fmt::Debug for NamedSource<S> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("NamedSource")
             .field("name", &self.name)
             .field("source", &"<redacted>")

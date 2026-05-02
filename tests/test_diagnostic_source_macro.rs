@@ -1,6 +1,8 @@
+extern crate miden_miette as miette;
+
 use miette::Diagnostic;
 
-#[derive(Debug, miette::Diagnostic, thiserror::Error)]
+#[derive(Debug, Diagnostic, thiserror::Error)]
 #[error("A complex error happened")]
 struct SourceError {
     #[source_code]
@@ -11,18 +13,18 @@ struct SourceError {
     label: (usize, usize),
 }
 
-#[derive(Debug, miette::Diagnostic, thiserror::Error)]
+#[derive(Debug, Diagnostic, thiserror::Error)]
 #[error("AnErr")]
 struct AnErr;
 
-#[derive(Debug, miette::Diagnostic, thiserror::Error)]
+#[derive(Debug, Diagnostic, thiserror::Error)]
 #[error("TestError")]
 struct TestStructError {
     #[diagnostic_source]
     asdf_inner_foo: SourceError,
 }
 
-#[derive(Debug, miette::Diagnostic, thiserror::Error)]
+#[derive(Debug, Diagnostic, thiserror::Error)]
 #[error("TestError")]
 enum TestEnumError {
     Without,
@@ -33,23 +35,23 @@ enum TestEnumError {
     },
 }
 
-#[derive(Debug, miette::Diagnostic, thiserror::Error)]
+#[derive(Debug, Diagnostic, thiserror::Error)]
 #[error("TestError")]
 struct TestTupleError(#[diagnostic_source] AnErr);
 
-#[derive(Debug, miette::Diagnostic, thiserror::Error)]
+#[derive(Debug, Diagnostic, thiserror::Error)]
 #[error("TestError")]
 struct TestBoxedError(#[diagnostic_source] Box<dyn Diagnostic>);
 
-#[derive(Debug, miette::Diagnostic, thiserror::Error)]
+#[derive(Debug, Diagnostic, thiserror::Error)]
 #[error("TestError")]
 struct TestBoxedSendError(#[diagnostic_source] Box<dyn Diagnostic + Send>);
 
-#[derive(Debug, miette::Diagnostic, thiserror::Error)]
+#[derive(Debug, Diagnostic, thiserror::Error)]
 #[error("TestError")]
 struct TestBoxedSendSyncError(#[diagnostic_source] Box<dyn Diagnostic + Send + Sync>);
 
-#[derive(Debug, miette::Diagnostic, thiserror::Error)]
+#[derive(Debug, Diagnostic, thiserror::Error)]
 #[error("TestError")]
 struct TestArcedError(#[diagnostic_source] std::sync::Arc<dyn Diagnostic>);
 
@@ -114,7 +116,7 @@ fn test_diagnostic_source_pass_extra_info() {
        2 │ World!
          ╰────
         help: Have you tried turning it on and off again?
-      
+
 
   this is a footer
 "#
@@ -149,7 +151,7 @@ fn test_diagnostic_source_is_output() {
          ·         ╰── here
          ╰────
         help: That's where the error is!
-      
+
 "#
     .trim_start_matches('\n');
 
@@ -157,7 +159,7 @@ fn test_diagnostic_source_is_output() {
 }
 
 #[cfg(feature = "fancy-no-backtrace")]
-#[derive(Debug, miette::Diagnostic, thiserror::Error)]
+#[derive(Debug, Diagnostic, thiserror::Error)]
 #[error("A nested error happened")]
 struct NestedError {
     #[source_code]
@@ -194,7 +196,7 @@ fn test_nested_diagnostic_source_is_output() {
     let expected = r#"
   × A nested error happened
   ├─▶   × TestError
-  │   
+  │
   ╰─▶   × A complex error happened
          ╭────
        1 │ This is another error
@@ -202,7 +204,7 @@ fn test_nested_diagnostic_source_is_output() {
          ·      ╰── here
          ╰────
         help: You should fix this
-      
+
    ╭────
  1 │ right here
    ·       ──┬─
@@ -217,7 +219,7 @@ fn test_nested_diagnostic_source_is_output() {
 }
 
 #[cfg(feature = "fancy-no-backtrace")]
-#[derive(Debug, miette::Diagnostic, thiserror::Error)]
+#[derive(Debug, Diagnostic, thiserror::Error)]
 #[error("A multi-error happened")]
 struct MultiError {
     #[related]
@@ -263,7 +265,7 @@ fn test_nested_cause_chains_for_related_errors_are_output() {
     let expected = r#"
   × A nested error happened
   ╰─▶   × A multi-error happened
-      
+
       Error:
         × A nested error happened
         ├─▶   × TestError
@@ -275,13 +277,13 @@ fn test_nested_cause_chains_for_related_errors_are_output() {
                ·      ╰── here
                ╰────
               help: You should fix this
-      
+
          ╭────
        1 │ right here
          ·       ──┬─
          ·         ╰── here
          ╰────
-      
+
       Error:
         × A complex error happened
          ╭────
@@ -290,7 +292,7 @@ fn test_nested_cause_chains_for_related_errors_are_output() {
          ·      ╰── here
          ╰────
         help: Get a grip...
-      
+
    ╭────
  1 │ the outside world
    ·       ──┬─
@@ -365,7 +367,7 @@ fn test_display_related_errors_as_nested() {
 }
 
 #[cfg(feature = "fancy-no-backtrace")]
-#[derive(Debug, miette::Diagnostic, thiserror::Error)]
+#[derive(Debug, Diagnostic, thiserror::Error)]
 #[error("A case1 error happened")]
 enum NestedEnumError {
     Case1 {
@@ -377,7 +379,7 @@ enum NestedEnumError {
 }
 
 #[cfg(feature = "fancy-no-backtrace")]
-#[derive(Debug, miette::Diagnostic, thiserror::Error)]
+#[derive(Debug, Diagnostic, thiserror::Error)]
 #[error("I am the inner error")]
 struct Case1Inner {
     #[label("inner-label")]
@@ -407,7 +409,7 @@ fn source_is_inherited_to_causes() {
          ·         ─┬─
          ·          ╰── inner-label
          ╰────
-      
+
 
   Yooo, a footer
 "#

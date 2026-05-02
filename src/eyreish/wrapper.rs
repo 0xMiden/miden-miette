@@ -1,8 +1,7 @@
+use alloc::boxed::Box;
 use core::fmt::{self, Debug, Display};
 
-use std::error::Error as StdError;
-
-use crate::{Diagnostic, LabeledSpan, Report, SourceCode};
+use crate::{Diagnostic, LabeledSpan, Report, SourceCode, StdError};
 
 use crate as miette;
 
@@ -62,7 +61,7 @@ impl Diagnostic for BoxedError {
         self.0.code()
     }
 
-    fn severity(&self) -> Option<miette::Severity> {
+    fn severity(&self) -> Option<crate::Severity> {
         self.0.severity()
     }
 
@@ -129,7 +128,7 @@ impl<E: Diagnostic, C: SourceCode> Diagnostic for WithSourceCode<E, C> {
         self.error.code()
     }
 
-    fn severity(&self) -> Option<miette::Severity> {
+    fn severity(&self) -> Option<crate::Severity> {
         self.error.severity()
     }
 
@@ -163,7 +162,7 @@ impl<C: SourceCode> Diagnostic for WithSourceCode<Report, C> {
         self.error.code()
     }
 
-    fn severity(&self) -> Option<miette::Severity> {
+    fn severity(&self) -> Option<crate::Severity> {
         self.error.severity()
     }
 

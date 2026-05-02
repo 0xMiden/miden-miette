@@ -1,10 +1,9 @@
 use super::error::{ContextError, ErrorImpl};
 use super::{Report, WrapErr};
+use alloc::boxed::Box;
 use core::fmt::{self, Debug, Display, Write};
 
-use std::error::Error as StdError;
-
-use crate::{Diagnostic, LabeledSpan};
+use crate::{Diagnostic, LabeledSpan, StdError};
 
 mod ext {
     use super::*;
@@ -38,7 +37,7 @@ mod ext {
     }
 }
 
-impl<T> WrapErr<T, std::convert::Infallible> for Option<T> {
+impl<T> WrapErr<T, core::convert::Infallible> for Option<T> {
     fn wrap_err<D>(self, msg: D) -> Result<T, Report>
     where
         D: Display + Send + Sync + 'static,

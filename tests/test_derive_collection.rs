@@ -1,3 +1,5 @@
+extern crate miden_miette as miette;
+
 use std::{
     collections::{LinkedList, VecDeque},
     ops::Range,

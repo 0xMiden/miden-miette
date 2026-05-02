@@ -306,7 +306,7 @@ fn wrapping_nested_errors() -> Result<(), MietteError> {
   │ the children, kiddos, pups, as it were, and
   │ so on...
   ╰─▶ baby::error
-      
+
         × Wah wah: I may be small, but I'll
         │ cause a proper bout of trouble — justt
         │ try wrapping this mess of a line,
@@ -314,7 +314,7 @@ fn wrapping_nested_errors() -> Result<(), MietteError> {
         help: it cannot be helped... woulddddddd
               you really want to get rid of an
               error that's so cute?
-      
+
   help: try doing it better next time? I mean,
         you could have also done better thisssss
         time, but no?
@@ -375,12 +375,12 @@ fn wrapping_related_errors() -> Result<(), MietteError> {
   │ the children, kiddos, pups, as it were, and
   │ so on...
   ╰─▶ brother::error
-      
+
         × Welcome to the brother-error
         │ brotherhood — where all of the wee
         │ baby errors join into a formidable
         │ force
-      
+
       Error:
         × Wah wah: I may be small, but I'll
         │ cause a proper bout of trouble — justt
@@ -389,19 +389,19 @@ fn wrapping_related_errors() -> Result<(), MietteError> {
         help: it cannot be helped... woulddddddd
               you really want to get rid of an
               error that's so cute?
-      
+
       Warning:
         ⚠ Wah wah: I may be small, but I'll
         │ cause a proper bout of trouble — justt
         │ try wrapping this mess of a line,
         │ buddo!
-      
+
       Advice:
         ☞ Wah wah: I may be small, but I'll
         │ cause a proper bout of trouble — justt
         │ try wrapping this mess of a line,
         │ buddo!
-      
+
   help: try doing it better next time? I mean,
         you could have also done better thisssss
         time, but no?
@@ -2014,11 +2014,11 @@ fn syntax_highlighter_on_real_file() {
         r#"
   × This is an error
       ╭─[{filename}:{l2}:{CO}]
- {l1} │ 
+ {l1} │
  {l2} │     let (filename, line) = (file!(), line!() as usize);
       ·                            ─────────────┬─────────────
       ·                                         ╰── this is a label
- {l3} │ 
+ {l3} │
       ╰────
 "#,
         l1 = line - 1,
@@ -2062,13 +2062,13 @@ fn triple_adjacent_highlight() -> Result<(), MietteError> {
  1 │ source
    · ───┬──
    ·    ╰── this bit here
- 2 │ 
- 3 │ 
+ 2 │
+ 3 │
  4 │   text
    ·   ──┬─
    ·     ╰── also this bit
- 5 │ 
- 6 │ 
+ 5 │
+ 6 │
  7 │     here
    ·     ──┬─
    ·       ╰── finally we got
@@ -2108,10 +2108,10 @@ fn non_adjacent_highlight() -> Result<(), MietteError> {
  1 │ source
    · ───┬──
    ·    ╰── this bit here
- 2 │ 
+ 2 │
    ╰────
    ╭─[bad_file.rs:5:3]
- 4 │ 
+ 4 │
  5 │   text    here
    ·   ──┬─
    ·     ╰── also this bit

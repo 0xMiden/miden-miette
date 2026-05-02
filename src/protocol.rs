@@ -3,11 +3,13 @@ This module defines the core of the miette protocol: a series of types and
 traits that you can implement to get access to miette's (and related library's)
 full reporting and such features.
 */
-use std::{
-    fmt::{self, Display},
-    fs,
-    panic::Location,
-};
+use alloc::{boxed::Box, string::String};
+use core::fmt::{self, Display};
+
+#[cfg(not(feature = "std"))]
+use core::error::Error as StdError;
+#[cfg(feature = "std")]
+use std::error::Error as StdError;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -17,7 +19,7 @@ use crate::{DiagnosticError, MietteError};
 /// Adds rich metadata to your Error that can be used by
 /// [`Report`](crate::Report) to print really nice and human-friendly error
 /// messages.
-pub trait Diagnostic: std::error::Error {
+pub trait Diagnostic: StdError {
     /// Unique diagnostic code that can be used to look up more information
     /// about this `Diagnostic`. Ideally also globally unique, and documented
     /// in the toplevel crate's documentation for easy searching. Rust path
@@ -72,12 +74,12 @@ pub trait Diagnostic: std::error::Error {
 macro_rules! box_error_impls {
     ($($box_type:ty),*) => {
         $(
-            impl std::error::Error for $box_type {
-                fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+            impl StdError for $box_type {
+                fn source(&self) -> Option<&(dyn StdError + 'static)> {
                     (**self).source()
                 }
 
-                fn cause(&self) -> Option<&dyn std::error::Error> {
+                fn cause(&self) -> Option<&dyn StdError> {
                     self.source()
                 }
             }
@@ -94,7 +96,7 @@ box_error_impls! {
 macro_rules! box_borrow_impls {
     ($($box_type:ty),*) => {
         $(
-            impl std::borrow::Borrow<dyn Diagnostic> for $box_type {
+            impl core::borrow::Borrow<dyn Diagnostic> for $box_type {
                 fn borrow(&self) -> &(dyn Diagnostic + 'static) {
                     self.as_ref()
                 }
@@ -152,7 +154,7 @@ impl From<String> for Box<dyn Diagnostic + Send + Sync> {
     fn from(s: String) -> Self {
         struct StringError(String);
 
-        impl std::error::Error for StringError {}
+        impl StdError for StringError {}
         impl Diagnostic for StringError {}
 
         impl Display for StringError {
@@ -172,8 +174,8 @@ impl From<String> for Box<dyn Diagnostic + Send + Sync> {
     }
 }
 
-impl From<Box<dyn std::error::Error + Send + Sync>> for Box<dyn Diagnostic + Send + Sync> {
-    fn from(s: Box<dyn std::error::Error + Send + Sync>) -> Self {
+impl From<Box<dyn StdError + Send + Sync>> for Box<dyn Diagnostic + Send + Sync> {
+    fn from(s: Box<dyn StdError + Send + Sync>) -> Self {
         Box::new(DiagnosticError(s))
     }
 }
@@ -291,7 +293,7 @@ impl LabeledSpan {
     ///
     /// # Examples
     /// ```
-    /// use miette::LabeledSpan;
+    /// use miden_miette::LabeledSpan;
     ///
     /// let source = "Cpp is the best";
     /// let label = LabeledSpan::at(0..3, "should be Rust");
@@ -308,7 +310,7 @@ impl LabeledSpan {
     ///
     /// # Examples
     /// ```
-    /// use miette::LabeledSpan;
+    /// use miden_miette::LabeledSpan;
     ///
     /// let source = "(2 + 2";
     /// let label = LabeledSpan::at_offset(4, "expected a closing parenthesis");
@@ -325,7 +327,7 @@ impl LabeledSpan {
     ///
     /// # Examples
     /// ```
-    /// use miette::LabeledSpan;
+    /// use miden_miette::LabeledSpan;
     ///
     /// let source = "You have an eror here";
     /// let label = LabeledSpan::underline(12..16);
@@ -594,8 +596,8 @@ impl From<(SourceOffset, usize)> for SourceSpan {
     }
 }
 
-impl From<std::ops::Range<ByteOffset>> for SourceSpan {
-    fn from(range: std::ops::Range<ByteOffset>) -> Self {
+impl From<core::ops::Range<ByteOffset>> for SourceSpan {
+    fn from(range: core::ops::Range<ByteOffset>) -> Self {
         Self {
             offset: range.start.into(),
             length: range.len(),
@@ -603,12 +605,12 @@ impl From<std::ops::Range<ByteOffset>> for SourceSpan {
     }
 }
 
-impl From<std::ops::RangeInclusive<ByteOffset>> for SourceSpan {
+impl From<core::ops::RangeInclusive<ByteOffset>> for SourceSpan {
     /// # Panics
     ///
     /// Panics if the total length of the inclusive range would overflow a
     /// `usize`. This will only occur with the range `0..=usize::MAX`.
-    fn from(range: std::ops::RangeInclusive<ByteOffset>) -> Self {
+    fn from(range: core::ops::RangeInclusive<ByteOffset>) -> Self {
         let (start, end) = range.clone().into_inner();
         Self {
             offset: start.into(),
@@ -715,11 +717,12 @@ impl SourceOffset {
     /// you're shipping binaries for your application, you'll want to ignore
     /// the Err case or otherwise report it.
     #[track_caller]
+    #[cfg(feature = "std")]
     pub fn from_current_location() -> Result<(String, Self), MietteError> {
-        let loc = Location::caller();
+        let loc = std::panic::Location::caller();
         Ok((
             loc.file().into(),
-            fs::read_to_string(loc.file())
+            std::fs::read_to_string(loc.file())
                 .map(|txt| Self::from_location(txt, loc.line() as usize, loc.column() as usize))?,
         ))
     }

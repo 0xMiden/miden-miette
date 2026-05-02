@@ -58,34 +58,34 @@ impl WhichFn {
     pub fn signature(&self) -> TokenStream {
         match self {
             Self::Code => quote! {
-                fn code(& self) -> std::option::Option<std::boxed::Box<dyn std::fmt::Display + '_>>
+                fn code(& self) -> core::option::Option<Box<dyn core::fmt::Display + '_>>
             },
             Self::Help => quote! {
-                fn help(& self) -> std::option::Option<std::boxed::Box<dyn std::fmt::Display + '_>>
+                fn help(& self) -> core::option::Option<Box<dyn core::fmt::Display + '_>>
             },
             Self::Url => quote! {
-                fn url(& self) -> std::option::Option<std::boxed::Box<dyn std::fmt::Display + '_>>
+                fn url(& self) -> core::option::Option<Box<dyn core::fmt::Display + '_>>
             },
             Self::Severity => quote! {
-                fn severity(&self) -> std::option::Option<miette::Severity>
+                fn severity(&self) -> core::option::Option<miette::Severity>
             },
             Self::Related => quote! {
-                fn related(&self) -> std::option::Option<std::boxed::Box<dyn std::iter::Iterator<Item = &dyn miette::Diagnostic> + '_>>
+                fn related(&self) -> core::option::Option<Box<dyn core::iter::Iterator<Item = &dyn miette::Diagnostic> + '_>>
             },
             Self::Labels => quote! {
-                fn labels(&self) -> std::option::Option<std::boxed::Box<dyn std::iter::Iterator<Item = miette::LabeledSpan> + '_>>
+                fn labels(&self) -> core::option::Option<Box<dyn core::iter::Iterator<Item = miette::LabeledSpan> + '_>>
             },
             Self::SourceCode => quote! {
-                fn source_code(&self) -> std::option::Option<&dyn miette::SourceCode>
+                fn source_code(&self) -> core::option::Option<&dyn miette::SourceCode>
             },
             Self::DiagnosticSource => quote! {
-                fn diagnostic_source(&self) -> std::option::Option<&dyn miette::Diagnostic>
+                fn diagnostic_source(&self) -> core::option::Option<&dyn miette::Diagnostic>
             },
         }
     }
 
     pub fn catchall_arm(&self) -> TokenStream {
-        quote! { _ => std::option::Option::None }
+        quote! { _ => core::option::Option::None }
     }
 }
 
@@ -150,7 +150,7 @@ impl Forward {
                 Self::#variant { #field_name, .. } => #field_name.#method_call,
             },
             Forward::Unnamed(index) => {
-                let underscores: Vec<_> = std::iter::repeat_n(quote! { _, }, *index).collect();
+                let underscores: Vec<_> = core::iter::repeat_n(quote! { _, }, *index).collect();
                 let unnamed = format_ident!("unnamed");
                 quote! {
                     Self::#variant ( #(#underscores)* #unnamed, .. ) => #unnamed.#method_call,

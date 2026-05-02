@@ -1,3 +1,5 @@
+extern crate miden_miette as miette;
+
 use std::panic::Location;
 
 use miette::{Diagnostic, IntoDiagnostic, WrapErr};

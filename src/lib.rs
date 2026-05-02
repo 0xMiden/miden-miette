@@ -96,6 +96,7 @@
 //! ## Example
 //!
 //! ```rust
+//! extern crate miden_miette as miette;
 //! /*
 //! You can derive a `Diagnostic` from any `std::error::Error` type.
 //!
@@ -194,6 +195,7 @@
 //!
 //! ```rust
 //! // lib/error.rs
+//! extern crate miden_miette as miette;
 //! use miette::{Diagnostic, SourceSpan};
 //! use thiserror::Error;
 //!
@@ -252,6 +254,7 @@
 //!
 //! ```rust
 //! // my_app/lib/my_internal_file.rs
+//! extern crate miden_miette as miette;
 //! use miette::{IntoDiagnostic, Result};
 //! use semver::Version;
 //!
@@ -267,6 +270,7 @@
 //!
 //! ```rust
 //! // my_app/lib/my_internal_file.rs
+//! extern crate miden_miette as miette;
 //! use miette::{IntoDiagnostic, Result, WrapErr};
 //! use semver::Version;
 //!
@@ -281,6 +285,7 @@
 //! To construct your own simple adhoc error use the [`miette!`] macro:
 //! ```rust
 //! // my_app/lib/my_internal_file.rs
+//! extern crate miden_miette as miette;
 //! use miette::{miette, Result};
 //! use semver::Version;
 //!
@@ -305,6 +310,7 @@
 //! > libraries and such might not want.
 //!
 //! ```rust
+//! extern crate miden_miette as miette;
 //! use miette::{IntoDiagnostic, Result};
 //! use semver::Version;
 //!
@@ -328,6 +334,7 @@
 //! To do it yourself, you can write the following:
 //!
 //! ```rust
+//! extern crate miden_miette as miette;
 //! use miette::{IntoDiagnostic, Result};
 //! use semver::Version;
 //!
@@ -360,6 +367,7 @@
 //! attribute:
 //!
 //! ```rust
+//! extern crate miden_miette as miette;
 //! use miette::Diagnostic;
 //! use thiserror::Error;
 //!
@@ -380,6 +388,7 @@
 //! (very high quality and detailed!) documentation on this diagnostic:
 //!
 //! ```rust
+//! extern crate miden_miette as miette;
 //! use miette::Diagnostic;
 //! use thiserror::Error;
 //!
@@ -410,6 +419,7 @@
 //! `derive(Diagnostic)` macro:
 //!
 //! ```rust
+//! extern crate miden_miette as miette;
 //! use miette::{Diagnostic, SourceSpan};
 //! use thiserror::Error;
 //!
@@ -448,6 +458,7 @@
 //! enum variants:
 //!
 //! ```rust
+//! extern crate miden_miette as miette;
 //! use miette::Diagnostic;
 //! use thiserror::Error;
 //!
@@ -461,6 +472,7 @@
 //! your diagnostic:
 //!
 //! ```rust
+//! extern crate miden_miette as miette;
 //! use miette::Diagnostic;
 //! use thiserror::Error;
 //!
@@ -481,6 +493,7 @@
 //! `miette` provides a way to set the severity level of a diagnostic.
 //!
 //! ```rust
+//! extern crate miden_miette as miette;
 //! use miette::Diagnostic;
 //! use thiserror::Error;
 //!
@@ -499,6 +512,7 @@
 //! `Diagnostic` type:
 //!
 //! ```rust
+//! extern crate miden_miette as miette;
 //! use miette::Diagnostic;
 //! use thiserror::Error;
 //!
@@ -517,6 +531,7 @@
 //! method for that:
 //!
 //! ```rust,no_run
+//! extern crate miden_miette as miette;
 //! use miette::{Diagnostic, SourceSpan};
 //! use thiserror::Error;
 //!
@@ -549,6 +564,7 @@
 //! emitted at the same time:
 //!
 //! ```rust,no_run
+//! extern crate miden_miette as miette;
 //! use miette::{Diagnostic, Report, SourceSpan};
 //! use thiserror::Error;
 //!
@@ -610,6 +626,7 @@
 //! will likely want to use _both_:
 //!
 //! ```rust
+//! extern crate miden_miette as miette;
 //! use miette::Diagnostic;
 //! use thiserror::Error;
 //!
@@ -635,6 +652,7 @@
 //! Usage is like so:
 //!
 //! ```rust,ignore
+//! extern crate miden_miette as miette;
 //! miette::set_hook(Box::new(|_| {
 //!     Box::new(
 //!         miette::MietteHandlerOpts::new()
@@ -661,6 +679,7 @@
 //!   [`MietteDiagnostic`] directly to create diagnostic on the fly.
 //!
 //! ```rust,ignore
+//! extern crate miden_miette as miette;
 //! # use miette::{miette, LabeledSpan, Report};
 //!
 //! let source = "2 + 2 * 2 = 8".to_string();
@@ -740,6 +759,7 @@
 //! parameter to `label` and use any type than can be iterated over for the field.
 //!
 //! ```rust,ignore
+//! extern crate miden_miette as miette;
 //! #[derive(Debug, Diagnostic, Error)]
 //! #[error("oops!")]
 //! struct MyError {
@@ -763,6 +783,7 @@
 //! attribute
 //!
 //! ```rust,ignore
+//! extern crate miden_miette as miette;
 //! #[derive(Debug, Diagnostic, Error)]
 //! #[error("oops!")]
 //! struct MyError {
@@ -815,6 +836,15 @@
 //! and some from [`thiserror`](https://github.com/dtolnay/thiserror), also
 //! under the Apache License. Some code is taken from
 //! [`ariadne`](https://github.com/zesterer/ariadne), which is MIT licensed.
+#![cfg_attr(not(any(test, feature = "std")), no_std)]
+
+#[cfg_attr(not(any(test, feature = "std")), macro_use)]
+extern crate alloc;
+
+#[cfg(any(test, feature = "std"))]
+#[macro_use]
+extern crate std;
+
 #[cfg(feature = "derive")]
 pub use miette_derive::*;
 
@@ -847,3 +877,8 @@ mod named_source;
 mod panic;
 mod protocol;
 mod source_impls;
+
+#[cfg(not(feature = "std"))]
+pub(crate) use core::error::Error as StdError;
+#[cfg(feature = "std")]
+pub(crate) use std::error::Error as StdError;

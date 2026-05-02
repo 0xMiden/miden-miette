@@ -1,3 +1,5 @@
+extern crate miden_miette as miette;
+
 use miette::{miette, Report};
 
 fn error() -> Report {
